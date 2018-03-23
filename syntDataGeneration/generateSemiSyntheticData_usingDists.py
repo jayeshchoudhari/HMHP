@@ -29,8 +29,8 @@ vocabsize = int(sys.argv[6])
 maxLevelsToBeGenerated = 25
 
 # Output Files...
-eventsFileName = "test_level_events_semisyn_sample.txt"
-docsFileName = "test_level_docs_semisyn_sample.txt"
+eventsFileName = "../inputFiles/eventsFile.txt"
+docsFileName = "../inputFiles/documentsFile.txt"
 
 allSyntEventsFileName = eventsFileName;
 allSyntDocsFileName = docsFileName

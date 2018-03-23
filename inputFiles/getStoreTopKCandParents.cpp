@@ -48,12 +48,13 @@ bool sortcol(const vector<double>& v1, const vector<double>& v2)
 
 ofstream allPossParentEventsFile, allPossExpFile, allPossTimeDiffFile;
 
-int maxAllowedTime = 13;
+int maxAllowedTime = 15;
 ui maxCandParents = 100;
 
 int main(int argc, char *argv[])
 {
-	reverseFollowersMap = readIntVectorMapFromFile("../mapped_users_friends_restricted_tweets_top_5k_hashes.txt");
+	// reverseFollowersMap = readIntVectorMapFromFile("../mapped_users_friends_restricted_tweets_top_5k_hashes.txt");
+	reverseFollowersMap = readIntVectorMapFromFile("./followersMap.txt");
 	// reverseFollowersMap = readIntVectorMapFromFile("../friends_BA_100_40.0.txt");
 	cout << "Got the reverse followers vector... " << reverseFollowersMap.size() << "\n";
 

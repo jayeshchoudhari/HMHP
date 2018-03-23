@@ -61,6 +61,7 @@ int initializeAndUpdateAlphaValue();
 int updateUserBaseRates();
 int initializeAvgProbabilityVectors();
 int initializeAvgTopicProbabilityVectors();
+unordered_map <string, string> getConfigInputOutputFileNames(string fileName);
 
 // sample topic
 int sampleTopicAssignment(int ITE);
@@ -174,10 +175,11 @@ ui ITERATIONS = 301;
 
 ui numNodes = maxNumNodes;
 
-ui numTopics = 100;
+// ui numTopics = 100;
+ui numTopics = 5;
 
-// ui vocabSize = 64500; 						// 10000
-ui vocabSize = 33900; 							// 10000
+ui vocabSize = 500; 						// 10000
+// ui vocabSize = 33900; 							// 10000
 ui totalWords = 0;
 
 double alphaWord = 0.1;
@@ -248,14 +250,14 @@ int main(int argc, char *argv[])
 {
 	string inputFilePaths, outputFilePaths;
 
-	if(argc = 5)
+	if(argc == 5)
 	{
 		BURN_IN = atoi(argv[1]);
 		ITERATIONS = atoi(argv[2]);
 
 		inputFilePaths = argv[3];
 		outputFilePaths = argv[4];
-
+        
 		cout << "Will be running sampler for BURN_IN = " << BURN_IN << " And ITERATIONS = " << ITERATIONS << "\n";
 	}
 	else
@@ -610,45 +612,45 @@ int initializeUserUserInfluence()
 		if(sourceOutDeg > 0)
 		{
 			sourceGid = (int) floor(log2(sourceOutDeg)/log2(logBase));
-		}
-		else
-		{
-			// sourceOutDeg = 0;
-			cout << "Some issue with the parent node...\n";
-			exit(0);
-		}
-
-		for(ui j = 0; j < followers.size(); j++)
-		{
-			vNode = followers[j];
-			double scaleParam = 1/(baseBeta);
-
-			// tempNodeInf[vNode] = getSampleFromGamma(baseAlpha, scaleParam);
-			tempNodeInf[vNode] = baseAlpha * scaleParam;
-
-			int destInDeg = inDegreeMap[vNode];
-			int destGid = (int) floor(log2(destInDeg)/log2(logBase));
-
-			string gid = to_string(sourceGid).append("_").append(to_string(destGid));
-
-			// one time calcualtion...
-			// as the number of events for each node do not change over iterations....
-			// also, the contribution is taken only from the first 15% of the events... 
-			groupSourceTransactionsSum[gid] += nodeEventsCountMap[uNode];
-			
-			if(nodeEventsCountMap[uNode] == 0)
+			for(ui j = 0; j < followers.size(); j++)
 			{
-				zeroSourceCount[gid] += 1;
+				vNode = followers[j];
+				double scaleParam = 1/(baseBeta);
+
+				// tempNodeInf[vNode] = getSampleFromGamma(baseAlpha, scaleParam);
+				tempNodeInf[vNode] = baseAlpha * scaleParam;
+
+				int destInDeg = inDegreeMap[vNode];
+				int destGid = (int) floor(log2(destInDeg)/log2(logBase));
+
+				string gid = to_string(sourceGid).append("_").append(to_string(destGid));
+
+				// one time calcualtion...
+				// as the number of events for each node do not change over iterations....
+				// also, the contribution is taken only from the first 15% of the events... 
+				groupSourceTransactionsSum[gid] += nodeEventsCountMap[uNode];
+				
+				if(nodeEventsCountMap[uNode] == 0)
+				{
+					zeroSourceCount[gid] += 1;
+				}
+
+				edgesInGroup[gid] += 1;
+				numTimesAddedNuToGroup[gid] += 1;
+				numTimesAddedNu += 1;
+
+				// cout << nodeEventsCountMap[uNode] << endl;
 			}
-
-			edgesInGroup[gid] += 1;
-			numTimesAddedNuToGroup[gid] += 1;
-			numTimesAddedNu += 1;
-
-			// cout << nodeEventsCountMap[uNode] << endl;
+			userUserInfluence[uNode] = tempNodeInf;
 		}
+		// else
+		// {
+		// 	// sourceOutDeg = 0;
+		// 	cout << "Some issue with the parent node...\n";
+		// 	exit(0);
+		// }
 
-		userUserInfluence[uNode] = tempNodeInf;
+
 
 		tempNodeInf.clear();
 

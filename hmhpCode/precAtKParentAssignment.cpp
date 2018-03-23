@@ -12,8 +12,8 @@
 
 #include <iostream>
 #include <cstdio>
-#include <boost/algorithm/string.hpp> 
-#include <boost/lexical_cast.hpp>
+// #include <boost/algorithm/string.hpp> 
+// #include <boost/lexical_cast.hpp>
 #include <fstream>
 #include <map>
 #include <unordered_map>
@@ -48,7 +48,8 @@ int main(int argc, char *argv[])
 
 	ifstream origEventsFile;
 	// origEventsFile.open("../centralFiles/allSyntheticEvents_Orig.txt");
-	origEventsFile.open("../events_semisyn_sample_gamma_1M.txt");
+	// origEventsFile.open("../events_semisyn_sample_gamma_1M.txt");
+	origEventsFile.open("../inputFiles/eventsFile.txt");
 	// allevents file...
 
 	string line;

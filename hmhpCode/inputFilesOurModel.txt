@@ -1,7 +1,7 @@
-eventsFile ../events_semisyn_sample_gamma_1M.txt
-docsFile ../docs_semisyn_sample_gamma_1M.txt
-mapFile ../../mapped_users_followers_restricted_tweets_top_5k_hashes.txt
-outDegreeFile ../outdegree_nodeid.txt
-inDegreeFile ../indegree_nodeid.txt
-top100CandidateParentsFile ../top100CandParents_sample_events_1L_time_16.txt
-top100CandidateParentsExpFile ../top100CandParExp_sample_events_1L_time_16.txt
+eventsFile ../inputFiles/eventsFile.txt
+docsFile ../inputFiles/documentsFile.txt
+mapFile ../inputFiles/followersMap.txt
+outDegreeFile ../inputFiles/outdegree_nodeid.txt
+inDegreeFile ../inputFiles/indegree_nodeid.txt
+top100CandidateParentsFile ../inputFiles/top100CandParents.txt
+top100CandidateParentsExpFile ../inputFiles/top100CandParExp.txt
