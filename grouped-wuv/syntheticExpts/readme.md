@@ -1,14 +1,15 @@
 
-# Readme for synthetic experiments:
+# Synthetic Data Generation
 
 The code for generating the (semi-)synthetic data is in file named "generateSemiSyntheticData_usingDists.py". 
 
 The input files required for the code are:
-    - User-User Influence file
-    - user-topic distributions
-	- topic-topic distributions
-	- topic-word distributions
-	- user base rates
+
+- User-User Influence file
+- user-topic distributions
+- topic-topic distributions
+- topic-word distributions
+- user base rates
 
 The code outputs events file and documents file. Each line of events file describes an event with 5 space separated values as follows:
 
