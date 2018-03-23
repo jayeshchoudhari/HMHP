@@ -17,32 +17,39 @@ np.random.seed(seedVal)
 # alphaMultiplier = 1
 # seedVal = 1234
 # np.random.seed(seedVal)
-eventsToBeGenerated = 1000000
+# eventsToBeGenerated = 1000000
+eventsToBeGenerated = int(sys.argv[4])
+
+numTopics = int(sys.argv[5])
+# numTopics = 100
+
+vocabsize = int(sys.argv[6])
+# vocabsize = 33900
+
 maxLevelsToBeGenerated = 25
 
 # Output Files...
-# eventsFileName = "events_semisyn_sample_" + str(alphaMultiplier) + "_Tmax_" + str(Tmax) + "_seed_" + str(seedVal) + "_10K.txt"
-# eventsFileName = "test_level_events_semisyn_sample.txt"
 eventsFileName = "test_level_events_semisyn_sample.txt"
-# docsFileName = "docs_semisyn_sample_" + str(alphaMultiplier) + "_Tmax_" + str(Tmax) + "_seed_" + str(seedVal) + "_10K.txt"
-# docsFileName = "test_level_docs_semisyn_sample.txt"
 docsFileName = "test_level_docs_semisyn_sample.txt"
 
 allSyntEventsFileName = eventsFileName;
 allSyntDocsFileName = docsFileName
 
 # Input Files...
-# nodeListFileName = "nodeListFile_100_40.0.txt"
-# nodeListFileName = "users.txt"
-userUserInfluenceFileName = "../semi_synthetic_expt_diag_grouped_wuv_all_edges_ssegwall/semiSyntheticWuvValues_top_5k_hashes_Grouped_All.txt"
-userBaseRatesFileName = "calculatedUserBaseRate_FullDay.txt"
-userTopicPrefVectorsFileName = "userTopicDistribution.txt"
-topicTopicProbVectorsFileName = "topicTopicDistribution_1M.txt"
-wordDistTopicsFileName = "topicWordDistribution_1M.txt"
+# userUserInfluenceFileName = "../semi_synthetic_expt_diag_grouped_wuv_all_edges_ssegwall/semiSyntheticWuvValues_top_5k_hashes_Grouped_All.txt"
+# userBaseRatesFileName = "calculatedUserBaseRate_FullDay.txt"
+# userTopicPrefVectorsFileName = "userTopicDistribution.txt"
+# topicTopicProbVectorsFileName = "topicTopicDistribution_1M.txt"
+# wordDistTopicsFileName = "topicWordDistribution_1M.txt"
+
+userUserInfluenceFileName = "./sampleUserUserInfluence.txt"
+userBaseRatesFileName = "./sampleUsersBaseRate.txt"
+userTopicPrefVectorsFileName = "./userTopicDistribution.txt"
+topicTopicProbVectorsFileName = "./topicTopicDistribution.txt"
+wordDistTopicsFileName = "./topicWordDistribution.txt"
 
 
 # numTopics = 100
-numTopics = 100
 topics = [i for i in range(0,numTopics)]
 
 docsize = 10
@@ -517,7 +524,7 @@ def getUserBaseRates(fileName):
 		splts = line.strip().split()
 
 		uid = int(splts[0].strip())
-		ubr = float(splts[2].strip())
+		ubr = float(splts[1].strip())
 
 		tempUBR[uid] = ubr
 
@@ -551,59 +558,7 @@ def getTopicTopicProbVectors(fileName):
 	return tempTopicTopicVec;
 
 
-'''
 
-def getInterarrivalForEachUV():
-
-	inArrForUV = {}
-
-	for eventInd in range(len(allSyntheticEvents)):
-
-		destTime = allSyntheticEvents[eventInd][0]
-		dest = allSyntheticEvents[eventInd][1]
-		destParent = allSyntheticEvents[eventInd][2]
-
-		if destParent > -1:
-
-			parentTime = allSyntheticEvents[destParent][0]
-			parentNode = allSyntheticEvents[destParent][1]
-
-			strId = str(parentNode) + "_" + str(dest)
-
-			if inArrForUV.get(strId, -1) != -1:
-				inArrForUV[strId].append(-(parentTime - destTime))
-			else:
-				inArrForUV[strId] = [-(parentTime - destTime)]
-
-
-	return inArrForUV
-
-
-
-def estimateAlphaValues():
-
-	# print("Interarrivals = ", interArrivalsForUV)
-	alValues = {}
-
-	for key in interArrivalsForUV:
-
-		sourceDest = key.split('_')
-		source = int(sourceDest[0])
-		dest = int(sourceDest[1])
-
-		ti_s = interArrivalsForUV[key]
-
-		print(key, np.mean(ti_s), len(ti_s))
-
-		sumTi_s = sum(ti_s)
-		Wuv_val = W[source][dest]
-
-		alValues[key] = math.sqrt(Wuv_val/sumTi_s)
-
-		print("av -- ", key, math.sqrt(Wuv_val/Tmax))
-
-	return alValues
-'''
 
 #################### Functions ###########################
 
@@ -665,7 +620,7 @@ print("Got topic topic prob vectors", len(topicTopicProbVectors))
 
 print("Getting word dist for each topic")
 wordDistTopics = getTopicWordProbVectors(wordDistTopicsFileName)
-vocabsize = 33900
+
 
 '''
 wordDistTopics = []
@@ -719,29 +674,4 @@ writeOnlyEventsToFile()
 
 allSyntheticDocs = generate_synthetic_docs(allSyntDocsFileName)
 
-
-'''
-# interArrivalsForUV = getInterarrivalForEachUV()
-# alphaValues = estimateAlphaValues()
-
-# print("AlphaValues =", alphaValues)
-
-totalWuv = 0
-totalIA = 0
-
-for key in alphaArrivsWuv:
-	print(key, sum(meanWuvs[key]), len(alphaArrivsWuv[key]), sum(alphaArrivsWuv[key]), sum(alphaArrivsInterArrivs[key]), math.sqrt(sum(alphaArrivsWuv[key])/sum(alphaArrivsInterArrivs[key])))
-	totalWuv += sum(alphaArrivsWuv[key])
-	totalIA += sum(alphaArrivsInterArrivs[key])
-
-
-print(math.sqrt(totalWuv/totalIA))
-
-
-# print(key, np.mean(alphaArrivsWuv[key]), np.mean(meanWuvs[key]))
-
-
-# allSyntheticEventsTopicsAssigned = get_assigned_topics_events()
-
-# print(len(allSyntheticEventsTopicsAssigned))
-'''
+print "Generated ", len(allSyntheticEvents), " events and docs....\n"
