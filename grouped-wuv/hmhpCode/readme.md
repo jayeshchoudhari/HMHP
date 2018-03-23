@@ -1,6 +1,6 @@
 # HMHP model
 
-The cpp file "hmhp_EstAll_GroupedWuv.cpp" is the code for the HMHP model. To run the model, the input files required are:
+The cpp file *hmhp_EstAll_GroupedWuv.cpp* is the code for the HMHP model. To run the model, the input files required are:
 
 * events file
 * documents file
@@ -13,10 +13,11 @@ To compile the code:
 g++ -std=c++11 -Wall -O2 -g -o hmhpModel hmhp_EstAll_GroupedWuv.cpp
 ```
 
-To execute the code, argv[1] = BURN-IN, argv[2] = Total No. Of Iterations, argv[3] = path to input files, and argv[4] = path to output files. Code can be executed as follows:
+To execute the code, **argv[1]** = *BURN-IN*, **argv[2]** = *Total No. Of Iterations*, **argv[3]** = *path to input files*, and **argv[4]** = *path to output files*. Code can be executed as follows:
 ```
 ./hmhpModel 200 301 inputFilesOurModel.txt outputFilesOurModel.txt
 ```
+
 As we record the inferred parent and topic assignments only at every 10th iteration after the BURN-IN period, the total number of iterations must be greater than 10 and greater than BURN-IN period.
 
 The code outputs various files as follows:
@@ -26,9 +27,9 @@ The code outputs various files as follows:
 - avg parent assignment (probability of candidate parent event)
 - grouped wuv values
 
-After the execution of the above code and once all the files are in place, one can execute the script "evaluateHMHP.sh"
+After the execution of the above code and once all the files are in place, one can execute the script *evaluateHMHP.sh*
 
-The file format for the input files is as follows:
+### The file format for the input files is as follows:
 
 1. *Events File*: Each line of events file describes an event with 5 space separated values as follows:
 ```
