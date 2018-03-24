@@ -27,7 +27,7 @@ The code outputs various files as follows:
 - avg parent assignment (probability of candidate parent event)
 - grouped wuv values
 
-After the execution of the above code and once all the files are in place, one can execute the script *evaluateHMHP.sh*
+_After the execution of the above code and once all the files are in place, one can execute the script **evaluateHMHP.sh**_
 
 ### The file format for the input files is as follows:
 
