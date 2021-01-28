@@ -1,4 +1,4 @@
-# HMHP (**This repo requires some polishing and finishing)
+# HMHP
 Hidden Markov Hawkes Process is probabilistic model proposed in *Discovering Topical Interactions in Text-based Cascades using Hidden Markov Hawkes Processes*. 
 
 The folder named 
