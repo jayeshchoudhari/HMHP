@@ -1,39 +1,44 @@
 from __future__ import division
 from collections import defaultdict
 from collections import Counter
-import math
-import matplotlib.pyplot as plt
 import sys
-
+import math
 import numpy as np
+# import matplotlib.pyplot as plt
+
 
 class SyntheticDataGenerator(object):
     def __init__(self, tMax, seedVal, eventsToBeGenerated,
-                 numTopics, alphaMultiplier):
+                 numTopics, alphaMultiplier, maxLevelsToBeGenerated = 4):
         """
         Init Method
         """
+        # print("inside init -- ", tMax)
         self.tMax = tMax,
         self.seedVal = seedVal
         self.eventsToBeGenerated = eventsToBeGenerated
         self.numTopics = numTopics
         self.alphaMultiplier = alphaMultiplier
+        self.maxLevelsToBeGenerated = maxLevelsToBeGenerated
 
-    def __get_homogenous_pp_timestamps(self, lambda_rate):
+    def get_homogenous_pp_timestamps(self, lambda_rate):
         """
         DESC
         """
         hppTimeStamps = []
         prev_ti = 0
-        while prev_ti <= self.tMax:
+        # print("inside get-homoge-pp-tmax - ", self.tMax)
+        # print("inside get-homoge-pp- seed -- ", self.seedVal)
+        max_Time = self.tMax[0]
+        while prev_ti <= max_Time:
                 key_u = np.random.uniform(0,1)
                 key_x = prev_ti - (np.log(key_u)/lambda_rate)
-                if key_x <= self.tMax:
+                if key_x <= max_Time:
                         hppTimeStamps.append(key_x)
                 prev_ti = key_x
         return hppTimeStamps
 
-    def __get_lambda_for_level_l(self, startTime, x, W_uv):
+    def get_lambda_for_level_l(self, startTime, x, W_uv):
         """
         DESC
         """
@@ -42,7 +47,7 @@ class SyntheticDataGenerator(object):
         func_value = W_uv * math.exp(- self.alphaMultiplier * timeDiff)
         return func_value
 
-    def __get_nhpp_timestamps_for_level_l(self, lambdaUpperBound, t_e, W_uv):
+    def get_nhpp_timestamps_for_level_l(self, lambdaUpperBound, t_e, W_uv):
         """
         DESC
         """
@@ -56,7 +61,7 @@ class SyntheticDataGenerator(object):
             u = np.random.uniform(0,1)
             w = -(np.log(u) / lambda_constant)  # so that w ~ exp(lambda_constant)
             sm = sm + w
-            probVal = (self.__get_lambda_for_level_l(t_e, sm, W_uv))/lambda_constant
+            probVal = (self.get_lambda_for_level_l(t_e, sm, W_uv))/lambda_constant
             # probVal = (get_lambda_for_level_l_rayleigh(t_e, sm, W_uv))/lambda_constant
             if sm < T and probVal >= 1e-7:
                 # homoTime.append(sm)
@@ -84,6 +89,9 @@ class SyntheticDataGenerator(object):
         @topicTopicProbVectors (list): desc
         return: Desc
         """
+        print("Tmax -- ", self.tMax)
+        print("Seed -- ", self.seedVal)
+
         np.random.seed(self.seedVal)
         topics = [i for i in range(0, self.numTopics)]
         W = userInfluence
@@ -96,21 +104,14 @@ class SyntheticDataGenerator(object):
         eventsWithId = {}
         level0Events = []
         # Generate Level-0 events
-        # get a random set of 100 nodes... and generate L0-events only for those nodes...
-        # randomNodes = np.random.choice(usersThatEmit, 100)
-        # for node in range(numNodes):
-        # for node in nodes:
-        # for node in usersThatEmit:
-        # for node in randomNodes:
         for node in userBaseRates.keys():
             # utils.get_nhpp_timestamps(Tmax, lambdaFunction, lambdaUpperBound) 
             # where lambdaUpperBound is a constant lambda upper bounding the rate
             # or intensity function
             # currently we are assuming that is known for each node                  
 
-            # nodeL0Timestamps = utils.get_nhpp_timestamps(Tmax, lamdaFunc, maxConstLambda)
             userMuVal = userBaseRates[node]
-            nodeL0Timestamps = self.__get_homogenous_pp_timestamps(self.tMax, userMuVal)
+            nodeL0Timestamps = self.get_homogenous_pp_timestamps(userMuVal)
             # each event is a list [tn, cn, pn, eta_n] = [time, node, parent, topic]...
             # topic for each event will be assigned later...
             # we use -1 as parent for level0 events as first event has eventId 0
@@ -154,7 +155,7 @@ class SyntheticDataGenerator(object):
                         # nhppTimestampsLevelL = utils.get_nhpp_timestamps_for_level_l(Tmax,
                         #                         lambda_constant, u_ts, W_uv)
                         if W_uv > 0:
-                            nhppTimestampsLevelL = self.__get_nhpp_timestamps_for_level_l(W_uv,
+                            nhppTimestampsLevelL = self.get_nhpp_timestamps_for_level_l(W_uv,
                                                                             u_ts, W_uv)
                             srcDest = str(u) + "_" + str(node)
                             inteArrivSum = 0
@@ -183,11 +184,11 @@ class SyntheticDataGenerator(object):
                 print(len(allEvents))
                 print("Done with level", level, "events")
                 level += 1
-            if level > maxLevelsToBeGenerated:
-                print("done with required levels... breaking here....")
+            if level > self.maxLevelsToBeGenerated:
+                print("done with required levels... Breaking here....")
                 break
             if len(allEvents) > self.eventsToBeGenerated:
-                print("Events more than 1000000.. Breaking here")
+                print("Events more than required.. Breaking here")
                 break
         allEvents.sort(key = lambda row:row[0])
         uniqEventIdSortedIndex = dict()
@@ -198,7 +199,7 @@ class SyntheticDataGenerator(object):
             uniqEventIdSortedIndex[uniqEventId] = eid
         # print("Adding the required parent Index to the events...")
         # now for each event, if its parent is some uniqEventId,
-        #we have change that with the event index....
+        # we have change that with the event index....
         for eid in range(len(allEvents)):
             uniqParentId = allEvents[eid][2]
             if uniqParentId != '-1':

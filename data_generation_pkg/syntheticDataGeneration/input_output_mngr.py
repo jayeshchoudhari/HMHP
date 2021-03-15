@@ -1,5 +1,6 @@
 import os
 import sys
+import numpy as np
 
 class FileInputManager(object):
 
@@ -10,9 +11,11 @@ class FileInputManager(object):
 
     def getUserBaseRates(self, userBaseRatesFilePath):
         """
-        DESC
+        Method to read the file with path userBaseRatesFilePath
+        @userBaseRatesFilePath (str): User Base rate file path
+        return: (dict)
         """
-        tempUBR = {}
+        tempUBR = dict()
         self.__check_file_exist(userBaseRatesFilePath)
         with open(userBaseRatesFilePath, 'r') as fp:
             for line in fp:
@@ -25,7 +28,7 @@ class FileInputManager(object):
     def getUserUserInfluence(self, userUserInfluenceFilePath):
         """
         Method to read the file with path userUserInfluenceFilePath and return dict
-        @userUserInfluenceFilePath (str): User Infulece File Path
+        @userUserInfluenceFilePath (str): User Influence File Path
         return: (dict)
         """
         tempWuv = dict()
@@ -33,7 +36,7 @@ class FileInputManager(object):
         with open(userUserInfluenceFilePath, 'r') as wuvfile:
             for line in wuvfile:
                 splitLine = line.split()
-                count = int(splitLine[0].strip())
+                # count = int(splitLine[0].strip())
                 uNode = int(splitLine[1].strip())
                 tempWuv[uNode] = {}
                 j = 2
@@ -46,7 +49,9 @@ class FileInputManager(object):
 
     def getUserTopicPrefVectors(self, userTopicPrefVectorsFilePath):
         """
-        DESC
+        Method to read the file with path userTopicPrefVectorsFilePath and return dict
+        @userTopicPrefVectorsFilePath (str): User Topic Preferences File Path
+        return: (dict)
         """
         tempUserTopicPrefVector = dict()
         self.__check_file_exist(userTopicPrefVectorsFilePath)
@@ -55,7 +60,7 @@ class FileInputManager(object):
                 splts = line.strip().split()
                 uid = int(splts[0].strip())
                 tempVec = []
-                sumVec = 0
+                # sumVec = 0
                 for j in range(1,len(splts)):
                     ele = float(splts[j].strip())
                     # sumVec += ele
@@ -67,7 +72,9 @@ class FileInputManager(object):
 
     def getTopicTopicProbVectors(self, topicTopicProbVectorsFilePath):
         """
-        DESC
+        Method to read the file with path topicTopicProbVectorsFilePath and return list of lists
+        @topicTopicProbVectorsFilePath (str): Topic Topic influence/interaction File Path
+        return: list of lists
         """
         tempTopicTopicVec = []
         self.__check_file_exist(topicTopicProbVectorsFilePath)
@@ -87,14 +94,16 @@ class FileInputManager(object):
 
     def getTopicWordProbVectors(self, wordDistTopicsFilePath):
         """
-        DESC
+        Method to read the file with path wordDistTopicsFilePath and return list of lists
+        @wordDistTopicsFilePath (str): Topic word distribution File Path
+        return: list of lists
         """
         tempWordDistVectors = []
         self.__check_file_exist(wordDistTopicsFilePath)
         with open(wordDistTopicsFilePath, 'r') as fp:
             for line in fp:
                 splts = line.strip().split()
-                tid = int(splts[0].strip())
+                # tid = int(splts[0].strip())
                 tempVec = []
                 for j in range(1, len(splts)):
                     tempVec.append(float(splts[j].strip()))
@@ -111,7 +120,9 @@ class FileOutputManager(object):
 
     def writeOnlyEventsToFile(self, allSyntEventsFilePath):
         """
-        DESC
+        Method to write all the events to the file at allSyntEventsFilePath
+        @allSyntEventsFilePath (str): write events to the output file 
+        return: None
         """
         with open(allSyntEventsFilePath, 'w') as fp:
             # Sample topic for each event based on the parent
@@ -123,7 +134,11 @@ class FileOutputManager(object):
 
     def generate_synthetic_docs(self, vocabsize, wordDistTopics, allSyntDocsFilePath):
         """
-        DESC
+        Method to generate documents write all the documents corresponding to the events to the file at allSyntDocsFilePath
+        @vocabsize (int): Describes the maximum number of words in the vocabulary
+        @wordDistTopics (list of lists): Describes topic word distribtion or distribution over vocabulary for each topic 
+        @allSyntDocsFilePath (str): write documents to the output file 
+        return: None
         """
         print("Generating Documents...")
         vocabulary = [i for i in range(0, vocabsize)]
@@ -131,6 +146,7 @@ class FileOutputManager(object):
         # hyperAlpha = [np.random.uniform(0,1) for k in range(0,vocabsize)]
         # Generate words for all the docs and write to file
         docWords = []
+        print(allSyntDocsFilePath)
         with open(allSyntDocsFilePath, 'w') as fp:
             # for eachdoc in allSyntheticEventsTopicsAssigned:
             for eachdoc in self.allSyntheticEvents:
