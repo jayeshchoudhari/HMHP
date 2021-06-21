@@ -1,0 +1,7 @@
+eventsFile ../inputFiles/eventsFile.txt
+docsFile ../inputFiles/documentsFile.txt
+mapFile ../inputFiles/followersMap.txt
+outDegreeFile ../inputFiles/outdegree_nodeid.txt
+inDegreeFile ../inputFiles/indegree_nodeid.txt
+top100CandidateParentsFile ../inputFiles/top100CandParents.txt
+top100CandidateParentsExpFile ../inputFiles/top100CandParExp.txt
