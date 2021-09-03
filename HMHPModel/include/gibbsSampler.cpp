@@ -1,11 +1,11 @@
 #include "namespace.h"
 #include "dataIO.h"
-#include "initialization.h"
+#include "gibbsSampler.h"
 #include "utilities.h"
 
 using namespace std;
 
-InitializeModel :: InitializeModel(DataIO &dataIOObj)
+GibbsSampler :: GibbsSampler(DataIO &dataIOObj)
 {
 	baseAlpha = 0.01;
 	baseBeta = 1;
@@ -16,16 +16,22 @@ InitializeModel :: InitializeModel(DataIO &dataIOObj)
 	updateNodeNodeCountMap(dataIOObj);
 	
 	initializeUserUserInfluence(dataIOObj);
-
 	initializeAvgProbabilityVectors(dataIOObj);
 	initializeAvgTopicProbabilityVectors(dataIOObj);
+
+	// So that its not just the prior probabilites...
+	// So initializing/or sampling once to have an effect of the initial counts...
+	sampleInfluenceAssignment(dataIOObj);
+	// update the user base rates...
+	updateUserBaseRates(dataIOObj);
+
 
 	cout << "Done with Initializing...\n";
 }
 
 
-// vector< vector <li> > InitializeModel :: initializeForSampler(vector< vector <li> > allEvents, int flag)
-int InitializeModel :: initializeForSampler(DataIO &dataIOObj)
+// vector< vector <li> > GibbsSampler :: initializeForSampler(vector< vector <li> > allEvents, int flag)
+int GibbsSampler :: initializeForSampler(DataIO &dataIOObj)
 {
 	// Random topic initialization...
 	// Parent Initialization is time based parent...
@@ -89,7 +95,7 @@ int InitializeModel :: initializeForSampler(DataIO &dataIOObj)
 	return 0;
 }
 
-int InitializeModel :: updateCountMatrices(DataIO &dataIOObj, vector< vector <li> > &localNewSyntheticEvents)
+int GibbsSampler :: updateCountMatrices(DataIO &dataIOObj, vector< vector <li> > &localNewSyntheticEvents)
 {
 	// initialization of the NTT Matrix... because of some initialization of parents...
 	int sumAll = 0;
@@ -134,7 +140,7 @@ int InitializeModel :: updateCountMatrices(DataIO &dataIOObj, vector< vector <li
 }
 
 
-int InitializeModel :: updateNodeNodeCountMap(DataIO &dataIOObj)
+int GibbsSampler :: updateNodeNodeCountMap(DataIO &dataIOObj)
 {
 	li eventNode, parentEvent, parentNode;
 	ui Nuv, Nu;
@@ -199,8 +205,7 @@ int InitializeModel :: updateNodeNodeCountMap(DataIO &dataIOObj)
 }
 
 
-
-int InitializeModel :: initializeUserUserInfluence(DataIO &dataIOObj)
+int GibbsSampler :: initializeUserUserInfluence(DataIO &dataIOObj)
 {
 	cout << "Initializing user user influence to a prior...\n";
 
@@ -263,8 +268,7 @@ int InitializeModel :: initializeUserUserInfluence(DataIO &dataIOObj)
 }
 
 
-
-int InitializeModel ::  initializeAvgProbabilityVectors(DataIO &dataIOObj)
+int GibbsSampler ::  initializeAvgProbabilityVectors(DataIO &dataIOObj)
 {
 	for(ui i = 0; i < dataIOObj.allPossibleParentEvents.size(); i++)
 	{
@@ -277,7 +281,7 @@ int InitializeModel ::  initializeAvgProbabilityVectors(DataIO &dataIOObj)
 	return 0;
 }
 
-int InitializeModel :: initializeAvgTopicProbabilityVectors(DataIO &dataIOObj)
+int GibbsSampler :: initializeAvgTopicProbabilityVectors(DataIO &dataIOObj)
 {
 	for(ui i = 0; i < dataIOObj.allDocs.size(); i++)
 	{
@@ -285,5 +289,186 @@ int InitializeModel :: initializeAvgTopicProbabilityVectors(DataIO &dataIOObj)
 		dataIOObj.avgTopicProbVector.push_back(initVec);
 		initVec.clear();
 	}
+	return 0;
+}
+
+
+
+
+
+///////////////////////////////
+/////// User Base Rates  //////
+///////////////////////////////
+int GibbsSampler :: updateUserBaseRates(DataIO &dataIOObj)
+{
+	int sponCount = 0;
+	int minTime = dataIOObj.eventIndexTimestamps[0];
+	int maxTime = dataIOObj.eventIndexTimestamps[dataIOObj.eventIndexTimestamps.size() - 1];
+
+	int totalDataObservedTime = maxTime - minTime;
+
+	map<int, int> eachNodeSponCount;
+
+
+	map<int, bool> distinctNodes;
+
+	for(ui i = 0; i < dataIOObj.newSyntheticEvents.size(); i++)
+	{
+		if(dataIOObj.newSyntheticEvents[i][2] == -1)
+		{
+			sponCount++;
+			distinctNodes[dataIOObj.newSyntheticEvents[i][1]] = 1;
+			eachNodeSponCount[dataIOObj.newSyntheticEvents[i][1]]++;
+		}
+	}
+
+	// defaultMuVal = (sponCount * 1.0) / ((maxTime - minTime) * distinctNodes.size());
+
+	double averageMuVal = 0;
+
+	double minMuVal = 1000000;
+	double maxMuVal = 0;
+	map<int, int>::iterator eachNodeSponCountIt;	
+
+	for(eachNodeSponCountIt = eachNodeSponCount.begin(); eachNodeSponCountIt != eachNodeSponCount.end(); eachNodeSponCountIt++)
+	{
+		int nodeId = eachNodeSponCountIt->first;
+		int nodeSponCount = eachNodeSponCountIt->second;
+
+		dataIOObj.userBaseRateMap[nodeId] = (nodeSponCount * 1.0) / totalDataObservedTime;
+
+		averageMuVal +=  dataIOObj.userBaseRateMap[nodeId];
+
+		if(dataIOObj.userBaseRateMap[nodeId] > maxMuVal)
+		{
+			maxMuVal = dataIOObj.userBaseRateMap[nodeId];
+		}
+
+		if(dataIOObj.userBaseRateMap[nodeId] < minMuVal)
+		{
+			minMuVal = dataIOObj.userBaseRateMap[nodeId];
+		}
+	}
+
+	dataIOObj.defaultMuVal = averageMuVal / eachNodeSponCount.size();
+	
+	cout << "sponCount = " << sponCount << " minMuVal = " << minMuVal << " maxMuVal = " << maxMuVal << " MLE MuVal = " << dataIOObj.defaultMuVal << endl;
+
+	return 0;
+}
+
+
+///////////////////////////////
+/////// SAMPLE INFLUENCE //////
+///////////////////////////////
+/*
+int GibbsSampler :: sampleInfluenceAssignment(DataIO &dataIOObj)
+{
+	cout << "Sample User User Influence\n";
+	ui Nuv, Nu;
+	double alphaDash, betaDash;
+	ui uNode, vNode;
+
+	unordered_map<ui, vector<ui> >::iterator nodeNodeUpdateIterator;
+
+	double avgVal = 0;
+	int count = 0;
+
+	for(nodeNodeUpdateIterator = dataIOObj.nodeNodeCombUpdateInfluence.begin(); nodeNodeUpdateIterator != dataIOObj.nodeNodeCombUpdateInfluence.end(); nodeNodeUpdateIterator++)
+	{
+		uNode = nodeNodeUpdateIterator->first;
+		vector<ui> updateForNodes = nodeNodeUpdateIterator->second;
+
+		Nu = nodeEventsCountMap[uNode];
+
+		for(ui i = 0; i < updateForNodes.size(); i++)
+		{
+			vNode = updateForNodes[i];
+			Nuv = dataIOObj.nodeNodeCount[uNode][vNode];
+
+			alphaDash = Nuv + dataIOObj.baseAlpha;
+			// betaDash = 1/(Nu + dataIOObj.baseBeta);
+			// double scaleParam = 1/(Nu + rateParam);
+			double scaleParam = 1/(Nu + dataIOObj.baseBeta);
+			// betaDash = 1.0/Nu;                 			//remove
+
+			// userUserInfluence[uNode][vNode] = getSampleFromGamma(alphaDash, scaleParam);
+			userUserInfluence[uNode][vNode] = alphaDash * scaleParam;
+
+			avgVal += dataIOObj.userUserInfluence[uNode][vNode];
+			count++;
+		}
+	}
+
+	cout << "Avg Wuv = " << avgVal / count << endl;
+
+	return 0;
+}
+*/
+
+int GibbsSampler :: sampleInfluenceAssignment(DataIO &dataIOObj)
+{
+	cout << "Sample User User Influence\n";
+	ui Nuv, Nu;
+	double alphaDash, betaDash;
+	ui uNode, vNode;
+
+	unordered_map<ui, vector<ui> >::iterator nodeNodeUpdateIterator;
+
+	double avgVal = 0;
+	int count = 0;
+
+	// unordered_map<ui, unordered_map<ui, ui> >::iterator nodeNodeCountIterator;
+	map<ui, map<ui, ui> >::iterator nodeNodeCountIterator;
+
+	for(nodeNodeCountIterator = dataIOObj.nodeNodeCount.begin(); nodeNodeCountIterator != dataIOObj.nodeNodeCount.end(); nodeNodeCountIterator++)
+	{
+		uNode = nodeNodeCountIterator->first;
+		int outDeg = dataIOObj.outDegreeMap[uNode];
+
+		// vector<ui> updateForNodes = nodeNodeCountIterator->second;
+		// unordered_map<ui, ui> nodeCountMap = nodeNodeCountIterator->second;
+		map<ui, ui> nodeCountMap = nodeNodeCountIterator->second;		
+		// unordered_map<ui, ui>::iterator nodeCountMapIterator;		
+		map<ui, ui>::iterator nodeCountMapIterator;		
+
+		for(nodeCountMapIterator = nodeCountMap.begin(); nodeCountMapIterator != nodeCountMap.end(); nodeCountMapIterator++)
+		{
+			vNode = nodeCountMapIterator->first;
+			// Nuv = nodeCountMapIterator->second;
+
+			int inDeg = dataIOObj.inDegreeMap[vNode];
+
+			int outDegGID = floor(log2(outDeg)/log2(logBase));
+			int inDegGID = floor(log2(inDeg)/log2(logBase));
+
+			string gid = to_string(outDegGID).append("_").append(to_string(inDegGID));
+
+			// default uinf 
+			double uinf = 0.01;
+
+			// if the denominator is not zero... 
+			// This can happen because we are taking the contribution to the denominator 
+			// of Wuv only from the first 15% of the events... 
+			// if an event which is not a part of first 15% of the events
+			// then the Nu count for this event would be zero... 
+			// and might have zero for the group... 
+			// the chances are lesser here because of group formations...
+			if(dataIOObj.groupSourceTransactionsSum[gid] != 0)
+			{
+				uinf = (dataIOObj.groupTransactionsSum[gid] + baseAlpha) * 1.0 / (dataIOObj.groupSourceTransactionsSum[gid] + baseBeta);
+			}
+
+			dataIOObj.groupWuv[gid] = uinf;
+
+			dataIOObj.userUserInfluence[uNode][vNode] = uinf;
+
+			avgVal += uinf;
+			count += 1;
+		}
+	}
+
+	cout << "Avg Wuv = " << avgVal / count << endl;
+
 	return 0;
 }

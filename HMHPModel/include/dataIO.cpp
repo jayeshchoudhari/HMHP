@@ -11,6 +11,7 @@ DataIO :: DataIO(string ipFilePathsFileName, string opFilePathsFileName, int num
 	
 	totalWords = 0;
     vocabSize = 500;
+    defaultMuVal = 2.16428e-06;
 
     inputFilePathsFileName = ipFilePathsFileName;
     outputFilePathsFileName = opFilePathsFileName;

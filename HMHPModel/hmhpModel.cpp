@@ -1,6 +1,6 @@
 #include "./include/namespace.h"
 #include "./include/dataIO.h"
-#include "./include/initialization.h"
+#include "./include/gibbsSampler.h"
 #include "./include/utilities.h"
 #include <bits/stdc++.h>
 
@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
 	}
     
 	DataIO dataIOObj(inputFilePaths, outputFilePaths, numOfTopics, maxNumOfNodes);
-	InitializeModel modelInitialize(dataIOObj);
+	GibbsSampler GBS(dataIOObj);
 
 	cout << "Read the data...\n";
 

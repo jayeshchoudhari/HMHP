@@ -11,6 +11,7 @@ class DataIO
         std::unordered_map <std::string, std::string> configInputFiles, configOutputFiles;
 
         ui maxLevel, totalWords, maxNumNodes, numTopics, vocabSize;
+        double defaultMuVal;
 
         std::vector< std::vector <li> > allEvents;
         std::vector< std::vector <li> > newSyntheticEvents;
@@ -52,8 +53,10 @@ class DataIO
         std::vector < ui > NUTSumTopicsVec;
 
         std::unordered_map <ui, std::unordered_map<ui, double> > userUserInfluence;
+        std::map<ui, double> userBaseRateMap;
 
         std::unordered_map<std::string, int> groupTransactionsSum, groupSourceTransactionsSum, actualEdgesNuSum;
+        std::unordered_map<std::string, double> groupWuv;
 
         std::vector <std::vector <double> > avgProbParForAllEvents;
         std::vector <std::vector <double> > avgTopicProbVector;
