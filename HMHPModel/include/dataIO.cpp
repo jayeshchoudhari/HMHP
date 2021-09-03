@@ -4,11 +4,12 @@
 
 using namespace std;
 
-DataIO :: DataIO(string ipFilePathsFileName, string opFilePathsFileName)		// constructor
+DataIO :: DataIO(string ipFilePathsFileName, string opFilePathsFileName, int numOfTopics, int maxNumOfNodes)		// constructor
 {
+	numTopics = numOfTopics;
+	maxNumNodes = maxNumOfNodes;
+	
 	totalWords = 0;
-	maxNumNodes = 1000002;
-	numTopics = 5;
     vocabSize = 500;
 
     inputFilePathsFileName = ipFilePathsFileName;
@@ -16,6 +17,16 @@ DataIO :: DataIO(string ipFilePathsFileName, string opFilePathsFileName)		// con
     configInputFiles = getConfigInputOutputFileNames(inputFilePathsFileName);
     configOutputFiles = getConfigInputOutputFileNames(outputFilePathsFileName);
     populateDataInDataStructure(configInputFiles);
+
+    nodeEventsCountMap.resize(maxNumNodes, 0);
+
+    NTWCountVec.resize(numTopics, std::vector < ui >(vocabSize, 0));
+    NTTCountVec.resize(numTopics, std::vector < ui >(numTopics, 0));
+    NUTCountVec.resize(maxNumNodes, std::vector < ui >(numTopics, 0));
+
+    NTWSumWordsVec.resize(numTopics, 0);
+	NTTSumTopicsVec.resize(numTopics, 0);
+	NUTSumTopicsVec.resize(maxNumNodes, 0);
 }
 
 

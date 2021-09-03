@@ -8,9 +8,12 @@ using namespace std;
 
 int main(int argc, char *argv[])
 {
-	string inputFilePaths, outputFilePaths;
+	int numOfTopics = 5;		// num of Topics
+	ui maxNumOfNodes = 1000002;	// num of nodes in user graph
 	int BURN_IN = 200;			// default values
 	ui ITERATIONS = 301;		// default values
+	
+	string inputFilePaths, outputFilePaths;
 
 	if(argc == 5)
 	{
@@ -28,8 +31,8 @@ int main(int argc, char *argv[])
 		exit(0);
 	}
     
-	DataIO dataIO(inputFilePaths, outputFilePaths);
-
+	DataIO dataIOObj(inputFilePaths, outputFilePaths, numOfTopics, maxNumOfNodes);
+	InitializeModel modelInitialize(dataIOObj);
 
 	cout << "Read the data...\n";
 
