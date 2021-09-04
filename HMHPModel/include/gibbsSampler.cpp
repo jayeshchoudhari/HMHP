@@ -75,6 +75,14 @@ int GibbsSampler :: IterativeSampler(DataIO &dataIOObj, ui ITERATIONS, int BURN_
 		cout << "Updating Child Events Map and Node-Node Count after -- "<< ITE << " Iteration --  Time  taken -- " << duration << endl;
 
 
+		t1 = std::chrono::high_resolution_clock::now();
+		sampleInfluenceAssignment(dataIOObj);
+		t2 = std::chrono::high_resolution_clock::now();
+	
+		duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+		cout << "Sampled User-User Influence for iteration -- "<< ITE << "--  Time taken -- " << duration << endl;
+
+		
 
 		cout << setprecision(10) << "Log Likelihood = " << logLikelihood << "\n";
 
