@@ -55,6 +55,25 @@ int GibbsSampler :: IterativeSampler(DataIO &dataIOObj, ui ITERATIONS, int BURN_
 		cout << "sampled parents for iteration -- "<< ITE << "--  Time taken -- " << duration << endl;
 
 
+		// updating the childEventsMap... as it might change after each iteration once we incorporate parent sampling
+		t1 = std::chrono::high_resolution_clock::now();
+
+		dataIOObj.childEventsMap.clear();
+		for(unsigned int i = 0; i < dataIOObj.newSyntheticEvents.size(); i++)
+		{
+			li eventCurrParent = dataIOObj.newSyntheticEvents[i][2];
+			if(eventCurrParent != -1)
+			{
+				dataIOObj.childEventsMap[eventCurrParent].push_back(i);
+			}
+		}
+
+		updateNodeNodeCountMap(dataIOObj);
+
+		t2 = std::chrono::high_resolution_clock::now();
+		duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+		cout << "Updating Child Events Map and Node-Node Count after -- "<< ITE << " Iteration --  Time  taken -- " << duration << endl;
+
 
 
 		cout << setprecision(10) << "Log Likelihood = " << logLikelihood << "\n";
@@ -931,7 +950,7 @@ li GibbsSampler :: getSampledParentAssignment(DataIO &dataIOObj, double eventTim
 	// cout << "calculatedProbVec-2 -- "<< possibleParentEvents.size()  << "\n";
 	
 	vector <double> calculatedProbVec;
-	
+
 	if(possibleParentEvents.size() > 0)
 	{
 		vector<double> possibleParentExp = dataIOObj.allPossibleParentEventsExponentials[eventIndex];
