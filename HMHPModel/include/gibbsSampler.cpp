@@ -82,7 +82,13 @@ int GibbsSampler :: IterativeSampler(DataIO &dataIOObj, ui ITERATIONS, int BURN_
 		duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
 		cout << "Sampled User-User Influence for iteration -- "<< ITE << "--  Time taken -- " << duration << endl;
 
-		
+		t1 = std::chrono::high_resolution_clock::now();
+		updateUserBaseRates(dataIOObj);
+		t2 = std::chrono::high_resolution_clock::now();
+	
+		duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+		cout << "Updating Alpha Value and User Base Rates -- "<< ITE << "--  Time taken -- " << duration << endl;
+        cout << "Default Mu Val = " << dataIOObj.defaultMuVal << endl;
 
 		cout << setprecision(10) << "Log Likelihood = " << logLikelihood << "\n";
 
