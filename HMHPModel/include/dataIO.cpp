@@ -449,7 +449,7 @@ vector <vector <double> > DataIO :: populateParentEventsExpKernelValue(string pa
 				expEvents.push_back(tempExp);
 			}
 
-			allPossibleParentEventsExponentials.push_back(expEvents);
+			localAllPossibleParentEventsExponentials.push_back(expEvents);
 			expEvents.clear();
 		}
 

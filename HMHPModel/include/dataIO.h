@@ -58,6 +58,8 @@ class DataIO
         std::unordered_map<std::string, int> groupTransactionsSum, groupSourceTransactionsSum, actualEdgesNuSum;
         std::unordered_map<std::string, double> groupWuv;
 
+        std::map <int, std::vector<int> > topicDistEvery10thIter, parentDistEvery10thIter;
+
         std::vector <std::vector <double> > avgProbParForAllEvents;
         std::vector <std::vector <double> > avgTopicProbVector;
 
@@ -75,11 +77,9 @@ class DataIO
         std::unordered_map<int, int> getDegreeMap(std::string degreeMapFile);
         int readHyperParametersVectorsFromFile();
 
-        int createWordHistForAllDocs();
-
-
         std::vector < std::vector <ui> > readIntVectorMapFromFile(std::string fileName);
 
+        int createWordHistForAllDocs();
         std::unordered_map <ui, ui> getHistOfWordsOverWordsFromDoc(std::vector<ui> doc);
 };
 

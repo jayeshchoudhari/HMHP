@@ -32,9 +32,18 @@ int main(int argc, char *argv[])
 	}
     
 	DataIO dataIOObj(inputFilePaths, outputFilePaths, numOfTopics, maxNumOfNodes);
-	GibbsSampler GBS(dataIOObj);
-
 	cout << "Read the data...\n";
+
+	GibbsSampler GBS(dataIOObj);
+	cout << "Done with Sampler Initializing...\n";
+
+	GBS.IterativeSampler(dataIOObj, ITERATIONS, BURN_IN);
+
+	ofstream llFile;
+	// llFile.open("estAllLogLikelihood.txt");
+	llFile.open(dataIOObj.configOutputFiles["logLikelihoodFile"]);
+
+
 
     return 0;
 }
